@@ -5,6 +5,7 @@ import axios from "axios";
 
 const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
 const productUrl = "https://apistg.tindn.no/v1/guest/order";
+const username = "v42@gmail.com";
 
 export default function Checkout() {
   const [open, setOpen] = useState(false);
@@ -19,10 +20,9 @@ export default function Checkout() {
     window.scrollTo(0, 0);
 
     const payload = {
-      isGuestOrder: true,
       customerInfo: {
-        username: inputs.email,
-        userType: "guest",
+        username: username,
+        userType: "customer",
         legalName: inputs.firstName,
         firstName: inputs.firstName,
         shopId: tindnshopid,
@@ -36,7 +36,7 @@ export default function Checkout() {
       },
       paymentInfo: {
         setupIntentId: "seti_1LurKoQhnL7ViwYNsyzApnKX",
-        paymentMethodId: "pm_1LurM7QhnL7ViwYNAQNhDGPM",
+        paymentMethodId: "pm_1LurM1QhnL7ViwYNLvzFKhw2",
       },
       items: [],
       address: {
@@ -68,9 +68,7 @@ export default function Checkout() {
         setOpen(true);
       })
       .catch((err) => {
-        console.log(err);
         setStatus(err.response.status);
-        console.log("err.response.status", err.response.status);
         setOpen(true);
       });
   };
