@@ -1,24 +1,37 @@
-import { useEffect } from "react";
-import OrderItem from "../components/orderItem";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const profileAPIURL = "https://apistg.tindn.no/v1/customer/order";
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
+import OrderItem from "../components/orderItem";
+
+const env = require("../env");
+
+const orderCustomerAPIURL = env.dev.orderCustomerAPIURL;
+const tindnshopid = env.dev.orderCustomerAPIURL;
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+
   useEffect(() => {
+    setIsLoading(true);
     axios
-      .get(profileAPIURL, {
+      .get(orderCustomerAPIURL, {
         headers: {
           tindnshopid,
           Authorization: "Bearer " + localStorage.getItem("userToken"),
         },
       })
       .then((res) => {
-        console.log("res", res.data.data);
         setOrders(res.data.data.Items);
+        setIsEmpty(res.data.data.Items.length === 0);
+      })
+      .catch((err) => {
+        setIsError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -26,9 +39,30 @@ export default function Orders() {
     <>
       <div className="mx-auto max-w-2xl py-10 px-4 sm:py-18 sm:px-2">
         <div className="text-center mb-6">
-          <h1 className="text-xl font-bold">Orders</h1>
+          <h1 className="text-xl font-bold">My Orders</h1>
         </div>
         <div>
+          <div className="text-center">
+            {isEmpty && (
+              <div className="text-gray-500 text-center mt-12">
+                You have no orders yet.
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="text-gray-500 text-center mt-12">
+                Fetching your orders listing...
+              </div>
+            )}
+
+            {isError && (
+              <div className="text-gray-500 text-center mt-12">
+                Sorry, something went wrong. Please contact support
+                (support@noaya.net)
+              </div>
+            )}
+          </div>
+
           {orders.map((item) => (
             <OrderItem orderItem={item} />
           ))}

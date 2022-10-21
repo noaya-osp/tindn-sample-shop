@@ -1,23 +1,28 @@
-import useCheckoutForm from "../customHooks/checkoutForm";
-import OrderSummary from "../components/orderSummary";
 import { useState } from "react";
 import axios from "axios";
 
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
-const productUrl = "https://apistg.tindn.no/v1/guest/order";
+import useCheckoutForm from "../customHooks/checkoutForm";
+import OrderSummary from "../components/orderSummary";
+
+const env = require("../env");
+
+const tindnshopid = env.dev.tindnshopid;
+const orderGuestAPIURL = env.dev.orderGuestAPIURL;
 const username = "v42@gmail.com";
 
 export default function Checkout() {
   const [open, setOpen] = useState(false);
-  const cartCheckout = JSON.parse(localStorage.getItem("cart")) || [];
   const [status, setStatus] = useState(200);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const cartCheckout = JSON.parse(localStorage.getItem("cart")) || [];
   const totalValue = cartCheckout.reduce(
     (prev, current) => prev + current.price.b2c.amount * current.quantity,
     0
   );
 
   const checkout = () => {
-    window.scrollTo(0, 0);
+    setIsLoading(true);
 
     const payload = {
       customerInfo: {
@@ -36,7 +41,7 @@ export default function Checkout() {
       },
       paymentInfo: {
         setupIntentId: "seti_1LurKoQhnL7ViwYNsyzApnKX",
-        paymentMethodId: "pm_1LurM1QhnL7ViwYNLvzFKhw2",
+        paymentMethodId: "pm_1LurLyQhnL7ViwYNyfE4xMAY",
       },
       items: [],
       address: {
@@ -60,7 +65,7 @@ export default function Checkout() {
     }
 
     axios
-      .post(productUrl, payload, {
+      .post(orderGuestAPIURL, payload, {
         headers: { tindnshopid },
       })
       .then((res) => {
@@ -70,6 +75,10 @@ export default function Checkout() {
       .catch((err) => {
         setStatus(err.response.status);
         setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        window.scrollTo(0, 0);
       });
   };
 
@@ -333,10 +342,11 @@ export default function Checkout() {
             <span className="mr-10 font-bold">Total: ${totalValue}</span>
 
             <button
+              disabled={isLoading}
               type="submit"
               className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Confirm Order
+              {isLoading ? "Processing..." : "Confirm Order"}
             </button>
           </div>
         </div>

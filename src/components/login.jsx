@@ -1,15 +1,18 @@
-import { LockClosedIcon } from "@heroicons/react/20/solid";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { useNavigate } from "react-router-dom";
 
-const loginAPIURL =
-  "https://apistg.tindn.no/v1/customer/subaccount/authenticate";
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
+const env = require("../env");
+
+const loginAPIURL = env.dev.loginAPIURL;
+const tindnshopid = env.dev.tindnshopid;
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const navigate = useNavigate();
   const handleLogin = (event) => {
@@ -22,14 +25,21 @@ export default function Login() {
       password,
     };
 
+    setIsLoading(true);
+
     axios
       .post(loginAPIURL, payload, {
         headers: { tindnshopid },
       })
       .then((res) => {
-        console.log("res", res.data.data);
         localStorage.setItem("userToken", res.data.data);
         navigate("/account");
+      })
+      .catch(() => {
+        setIsError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -116,6 +126,7 @@ export default function Login() {
 
             <div>
               <button
+                disabled={isLoading}
                 type="submit"
                 className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
@@ -125,8 +136,12 @@ export default function Login() {
                     aria-hidden="true"
                   />
                 </span>
-                Sign in
+
+                {isLoading ? "Signing in..." : "Sign in"}
               </button>
+              <div className="text-center mt-4 text-red-500">
+                <span>{isError ? "Invalid credentials" : ""}</span>
+              </div>
             </div>
           </form>
         </div>

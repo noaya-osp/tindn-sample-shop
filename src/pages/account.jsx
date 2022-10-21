@@ -1,9 +1,12 @@
-import useAccountForm from "../customHooks/accountForm";
 import axios from "axios";
 import { useEffect } from "react";
 
-const profileAPIURL = "https://apistg.tindn.no/v1/customer/profile";
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
+import useAccountForm from "../customHooks/accountForm";
+
+const env = require("../env");
+
+const profileAPIURL = env.dev.profileAPIURL;
+const tindnshopid = env.dev.tindnshopid;
 
 export default function Account() {
   const updateAccount = () => {};
@@ -19,7 +22,6 @@ export default function Account() {
         },
       })
       .then((res) => {
-        console.log("profile", res.data.data);
         setInputs(res.data.data);
       });
   }, []);

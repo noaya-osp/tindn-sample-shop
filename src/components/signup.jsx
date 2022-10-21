@@ -1,15 +1,21 @@
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAccountForm from "../customHooks/accountForm";
-import axios from "axios";
+import { useState } from "react";
 
-const accountAPIURL = "https://apistg.tindn.no/v1/customer/subaccount";
-const profileAPIURL = "https://apistg.tindn.no/v1/customer/profile";
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
+const env = require("../env");
+
+const accountAPIURL = env.dev.accountAPIURL;
+const profileAPIURL = env.dev.profileAPIURL;
+const tindnshopid = env.dev.tindnshopid;
 
 export default function Signup() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
   const navigate = useNavigate();
+
   const register = () => {
-    console.log(inputs);
     const payload = {
       username: inputs.email,
       password: inputs.password,
@@ -27,14 +33,14 @@ export default function Signup() {
       },
     };
 
+    setIsLoading(true);
+
     axios
       .post(accountAPIURL, payload, {
         headers: { tindnshopid },
       })
       .then((res) => {
-        console.log("res", res.data.data.token);
         localStorage.setItem("userToken", res.data.data.token);
-
         axios
           .post(profileAPIURL, profilePayload, {
             headers: {
@@ -46,6 +52,12 @@ export default function Signup() {
             console.log("profRes", res);
             navigate("/account");
           });
+      })
+      .catch(() => {
+        setIsError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -147,8 +159,11 @@ export default function Signup() {
                 type="submit"
                 className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                Register
+                {isLoading ? "Processing..." : "Register"}
               </button>
+              <div className="text-center mt-4 text-red-500">
+                <span>{isError ? "Sorry, username already exists." : ""}</span>
+              </div>
             </div>
           </form>
         </div>

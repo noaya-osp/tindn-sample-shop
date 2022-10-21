@@ -1,10 +1,12 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
+
 import ProductView from "../components/productView";
 
-import axios from "axios";
+const env = require("../env");
 
-const productUrl = "https://apistg.tindn.no/v1/customer/product?limit=50";
-const tindnshopid = "d17adba2-738b-47ee-a778-ccf9cf3cf922";
+const productUrl = env.dev.productUrl;
+const tindnshopid = env.dev.tindnshopid;
 
 export default function Products({ cart, setCart }) {
   const [openProductModal, setOpenProductModal] = useState(false);
