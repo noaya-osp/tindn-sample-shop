@@ -40,8 +40,8 @@ export default function Checkout() {
         },
       },
       paymentInfo: {
-        setupIntentId: "seti_1LurKoQhnL7ViwYNsyzApnKX",
-        paymentMethodId: "pm_1LurLyQhnL7ViwYNyfE4xMAY",
+        setupIntentId: "seti_1MTer7D8SBr38p0KtxGVmKcj",
+        paymentMethodId: "pm_1MTerSD8SBr38p0KEsAEvjO7",
       },
       items: [],
       address: {
